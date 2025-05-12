@@ -1,38 +1,13 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const ai = new GoogleGenAI({ apiKey: AIzaSyA7oxHhqp1NOyJin4XmQjIGE1LXrSrn-Cw });
 
-// 🔐 Your Gemini API key (HARD-CODED for testing only)
-const API_KEY = "AIzaSyB0OF-Qwmx6Xz6j3MLcA5xI9KQDyxGpJMw";
+async function main() {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: "Explain how AI works in a few words",
+  });
+  console.log(response.text);
+}
 
-// 🔧 Initialize Gemini Model
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-// 🔁 Chat Endpoint
-app.post("/chat", async (req, res) => {
-  const userMessage = req.body.message;
-
-  try {
-    const result = await model.generateContent(userMessage);
-    const response = await result.response;
-    const text = response.text();
-    res.json({ reply: text });
-  } catch (err) {
-    console.error("❌ Error talking to Gemini:", err);
-    res.status(500).json({ reply: "Something went wrong with Gemini." });
-  }
-});
-
-// 🚀 Start Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
-});
-
-
+await main();
